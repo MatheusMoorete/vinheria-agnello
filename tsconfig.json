@@ -1,0 +1,35 @@
+//Configuração do TypeScript
+{
+  "compilerOptions": {
+    "baseUrl": ".", // Define o diretório raiz do projeto
+    "target": "ES2017", //Defina que o código será compilado para ES2017
+    "lib": ["dom", "dom.iterable", "esnext"], //Define as bibliotecas que serão utilizadas
+    "allowJs": true, //Permite o uso de JavaScript no projeto
+    "skipLibCheck": true, //Ignora verificações de tipos em arquivos externos
+    "strict": true, //Habilita verificações de tipo estrito
+    "noEmit": true, //Não gera arquivos de saída
+    "esModuleInterop": true, //Habilita a interoperabilidade de módulos
+    "module": "esnext", //Define o tipo de módulo que será utilizado
+    "moduleResolution": "bundler", //Define como os módulos serão resolvidos
+    "resolveJsonModule": true, //Habilita a resolução de módulos JSON
+    "isolatedModules": true, //Habilita módulos isolados
+    "jsx": "preserve", //Preserva o JSX original
+    "incremental": true, //Habilita a compilação incremental
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"], //Define o caminho para os módulos
+      "@/components/*": ["src/components/*"], //Define o caminho para os componentes
+      "@/styles/*": ["src/styles/*"], //Define o caminho para os estilos
+      "@/utils/*": ["src/utils/*"], //Define o caminho para os utilitários
+      "@/services/*": ["src/services/*"], //Define o caminho para os serviços
+      "@/types/*": ["src/types/*"], //Define o caminho para os tipos
+      "@/hooks/*": ["src/hooks/*"] //Define o caminho para os hooks
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"], //Define os arquivos que serão incluídos na compilação  
+  "exclude": ["node_modules"]
+}

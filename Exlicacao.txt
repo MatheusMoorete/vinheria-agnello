@@ -1,0 +1,43 @@
+Estrutura do Projeto:
+
+src/
+  ├── app/              # Páginas e rotas do Next.js
+  ├── components/       # Componentes React reutilizáveis
+  │   ├── layout/       # Componentes de layout (Header, Footer...)
+  │   ├── sections/     # Seções grandes da página
+  │   └── ui/           # Componentes básicos (Button, Input...)
+  ├── lib/              # Utilitários e funções helpers
+  ├── styles/           # Arquivos de estilo
+  └── utils/            # Funções utilitárias
+
+  Configurações Principais:
+
+    package.json: Define as dependências do projeto e scripts de build/deploy, sendo as principais dependências:
+      - Next.js: Framework React
+      - Tailwind CSS: Framework de estilização
+      - Lucide React: Biblioteca de ícones
+      - TypeScript: Adiciona tipagem ao JavaScript
+
+    tailwind.config.js: Configurações do tema Tailwind CSS
+
+
+  Padrões de Código Importantes:
+    - Tipagem TypeScript:
+      - Interfaces definidas para props
+      - Tipos explícitos para funções
+      - Uso de generics quando necessário
+
+    - Componentes React:
+      - Funcionais (hooks)
+      - Props tipadas
+      - Reutilizáveis
+
+    - Estilização:
+      - Tailwind CSS para todo estilo
+      - Sistema de cores consistente
+      - Classes utilitárias
+
+    - Responsividade:
+      - Mobile-first
+      - Breakpoints do Tailwind
+      - Layout flexível
