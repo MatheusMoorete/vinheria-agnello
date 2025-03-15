@@ -15,7 +15,7 @@
  * - Compartilhamento em redes sociais
  */
 
-'use client' // Indica que este componente roda no cliente
+'use client'
 
 import { useState } from 'react'
 import Image from 'next/image'
@@ -44,6 +44,7 @@ interface ProductProps {
   params: {
     slug: string
   }
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
 interface Product {
@@ -202,17 +203,8 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export default function ProductPage({ params }: ProductProps) {
-  const { slug } = params;
-  
-  // Encontrar o produto atual pelo slug
-  const product = products.find(p => p.slug === slug);
-  
-  // Se o produto não for encontrado, retornar 404
-  if (!product) {
-    notFound();
-  }
-  
+// Componente do lado do cliente que contém a lógica interativa
+function ProductContent({ product }: { product: Product }) {
   // Estados para controlar a interação do usuário
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -242,46 +234,38 @@ export default function ProductPage({ params }: ProductProps) {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 mt-[180px] md:mt-[220px]">
+    <main className="container mx-auto px-4 py-8 mt-[60px] md:mt-[80px]">
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-8 flex items-center">
         <Link href="/" className="hover:text-primary">Início</Link>
         <span className="mx-2">/</span>
         <Link href="/produtos" className="hover:text-primary">Produtos</Link>
         <span className="mx-2">/</span>
-        <Link href="/produtos/vinhos/tintos" className="hover:text-primary">Vinhos Tintos</Link>
-        <span className="mx-2">/</span>
-        <span className="text-gray-700">{product.name}</span>
+        <span className="text-gray-900">{product.name}</span>
       </div>
-      
-      {/* Produto principal - imagem e detalhes */}
-      <div className="flex flex-col lg:flex-row gap-8 mb-16">
-        {/* Galeria de imagens */}
-        <div className="lg:w-1/2">
-          <div className="relative aspect-square bg-white rounded-lg overflow-hidden mb-4">
+
+      {/* Grid do produto */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        {/* Coluna da esquerda - Imagens */}
+        <div>
+          <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
             <Image
               src={product.images?.[selectedImage] || product.image}
               alt={product.name}
               fill
-              className="object-contain"
-              priority
+              className="object-cover"
             />
-            {product.oldPrice && (
-              <span className="absolute top-4 right-4 bg-primary text-white text-sm font-medium px-2 py-1 rounded-full">
-                -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%
-              </span>
-            )}
           </div>
           
-          {/* Miniaturas */}
+          {/* Galeria de miniaturas */}
           {product.images && product.images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="grid grid-cols-4 gap-4">
               {product.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative w-20 h-20 flex-shrink-0 border-2 rounded-md overflow-hidden ${
-                    selectedImage === index ? 'border-primary' : 'border-gray-200'
+                  className={`relative aspect-square rounded-md overflow-hidden border-2 ${
+                    selectedImage === index ? 'border-primary' : 'border-transparent'
                   }`}
                 >
                   <Image
@@ -295,340 +279,256 @@ export default function ProductPage({ params }: ProductProps) {
             </div>
           )}
         </div>
-        
-        {/* Informações do produto */}
-        <div className="lg:w-1/2">
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+
+        {/* Coluna da direita - Informações */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            {product.name}
+          </h1>
           
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center">
-              <StarRating rating={product.rating} />
-              <span className="ml-2 text-sm text-gray-600">
-                ({product.reviews.length} avaliações)
-              </span>
-            </div>
-            <span className="text-green-600 text-sm">Em estoque</span>
+          {/* Avaliação */}
+          <div className="flex items-center gap-2 mb-6">
+            <StarRating rating={product.rating} />
+            <span className="text-sm text-gray-500">
+              ({product.reviews.length} avaliações)
+            </span>
           </div>
           
-          <div className="flex items-baseline gap-3 mb-6">
+          {/* Preço */}
+          <div className="mb-8">
             {product.oldPrice && (
               <span className="text-gray-500 line-through text-lg">
                 {formatCurrency(product.oldPrice)}
               </span>
             )}
-            <span className="text-3xl font-bold text-primary">
-              {formatCurrency(product.price)}
-            </span>
-          </div>
-          
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <p className="text-gray-700 mb-4">
-              {product.description}
-            </p>
-            
-            <div className="flex flex-wrap gap-4 text-sm">
-              {product.details.country && (
-                <div>
-                  <span className="font-medium text-gray-700">País:</span>{' '}
-                  <span>{product.details.country}</span>
-                </div>
-              )}
-              {product.details.region && (
-                <div>
-                  <span className="font-medium text-gray-700">Região:</span>{' '}
-                  <span>{product.details.region}</span>
-                </div>
-              )}
-              {product.details.year && (
-                <div>
-                  <span className="font-medium text-gray-700">Safra:</span>{' '}
-                  <span>{product.details.year}</span>
-                </div>
-              )}
-              {product.details.alcohol && (
-                <div>
-                  <span className="font-medium text-gray-700">Teor alcoólico:</span>{' '}
-                  <span>{product.details.alcohol}</span>
-                </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-bold text-primary">
+                {formatCurrency(product.price)}
+              </span>
+              {product.oldPrice && (
+                <span className="text-sm text-green-600 font-medium">
+                  {Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% OFF
+                </span>
               )}
             </div>
           </div>
           
           {/* Seletor de quantidade e botão de compra */}
-          <div className="mb-8">
-            <div className="flex items-center gap-6 mb-6">
-              <div className="flex items-center">
-                <span className="mr-3 text-gray-700">Quantidade:</span>
-                <div className="flex items-center border border-gray-300 rounded-md">
-                  <button
-                    onClick={decreaseQuantity}
-                    disabled={quantity <= 1}
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-10 text-center">{quantity}</span>
-                  <button
-                    onClick={increaseQuantity}
-                    disabled={quantity >= product.stock}
-                    className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex items-center border border-gray-300 rounded-lg">
+              <button
+                onClick={decreaseQuantity}
+                disabled={quantity <= 1}
+                className="p-3 hover:bg-gray-100 disabled:opacity-50"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="px-6 py-3 border-x border-gray-300">
+                {quantity}
+              </span>
+              <button
+                onClick={increaseQuantity}
+                disabled={quantity >= product.stock}
+                className="p-3 hover:bg-gray-100 disabled:opacity-50"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <Button
+              variant="primary"
+              className="flex-1 h-auto py-3 text-base flex items-center justify-center gap-2"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              Adicionar ao carrinho
+            </Button>
+          </div>
+          
+          {/* Informações de entrega e pagamento */}
+          <div className="space-y-4 mb-8 text-sm">
+            <div className="flex items-center gap-2 text-gray-600">
+              <Truck className="w-5 h-5 text-green-600" />
+              <span>Frete grátis para compras acima de R$ 250</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <CreditCard className="w-5 h-5 text-primary" />
+              <span>Em até 6x sem juros no cartão</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              <span>Compra 100% segura</span>
+            </div>
+          </div>
+          
+          {/* Compartilhamento */}
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-sm text-gray-500">Compartilhar:</span>
+            <div className="flex gap-2">
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <Facebook className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <Twitter className="w-5 h-5 text-gray-600" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <Share2 className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
+          
+          {/* Seções expansíveis */}
+          <div className="space-y-4">
+            {/* Descrição */}
+            <div className="border-t border-gray-200">
+              <button
+                onClick={() => toggleSection('description')}
+                className="flex items-center justify-between w-full py-4"
+              >
+                <span className="font-medium">Descrição</span>
+                {openSection === 'description' ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
+                  <ChevronDown className="w-5 h-5" />
+                )}
+              </button>
+              {openSection === 'description' && (
+                <div className="pb-4 text-gray-600">
+                  <p>{product.description}</p>
                 </div>
-              </div>
-              
-              <div className="text-sm text-gray-600">
-                {product.stock} unidades disponíveis
-              </div>
+              )}
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                variant="primary"
-                className="py-3 px-8 text-base flex-1 flex items-center justify-center gap-2"
+            {/* Detalhes */}
+            <div className="border-t border-gray-200">
+              <button
+                onClick={() => toggleSection('details')}
+                className="flex items-center justify-between w-full py-4"
               >
-                <ShoppingCart className="w-5 h-5" />
-                Adicionar ao carrinho
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="py-3 px-8 text-base flex-1 flex items-center justify-center gap-2 border-primary text-primary"
-              >
-                Comprar agora
-              </Button>
+                <span className="font-medium">Detalhes técnicos</span>
+                {openSection === 'details' ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
+                  <ChevronDown className="w-5 h-5" />
+                )}
+              </button>
+              {openSection === 'details' && (
+                <div className="pb-4 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {product.details.country && (
+                      <div>
+                        <dt className="text-sm text-gray-500">País</dt>
+                        <dd className="text-gray-900">{product.details.country}</dd>
+                      </div>
+                    )}
+                    {product.details.region && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Região</dt>
+                        <dd className="text-gray-900">{product.details.region}</dd>
+                      </div>
+                    )}
+                    {product.details.winery && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Vinícola</dt>
+                        <dd className="text-gray-900">{product.details.winery}</dd>
+                      </div>
+                    )}
+                    {product.details.grapes && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Uvas</dt>
+                        <dd className="text-gray-900">{product.details.grapes.join(', ')}</dd>
+                      </div>
+                    )}
+                    {product.details.volume && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Volume</dt>
+                        <dd className="text-gray-900">{product.details.volume}</dd>
+                      </div>
+                    )}
+                    {product.details.alcohol && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Teor alcoólico</dt>
+                        <dd className="text-gray-900">{product.details.alcohol}</dd>
+                      </div>
+                    )}
+                    {product.details.temperature && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Temperatura de serviço</dt>
+                        <dd className="text-gray-900">{product.details.temperature}</dd>
+                      </div>
+                    )}
+                    {product.details.year && (
+                      <div>
+                        <dt className="text-sm text-gray-500">Safra</dt>
+                        <dd className="text-gray-900">{product.details.year}</dd>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {product.details.foodPairing && (
+                    <div>
+                      <dt className="text-sm text-gray-500 mb-1">Harmonização</dt>
+                      <dd className="text-gray-900">
+                        {product.details.foodPairing.join(', ')}
+                      </dd>
+                    </div>
+                  )}
+                  
+                  {product.details.ageing && (
+                    <div>
+                      <dt className="text-sm text-gray-500 mb-1">Envelhecimento</dt>
+                      <dd className="text-gray-900">{product.details.ageing}</dd>
+                    </div>
+                  )}
+                  
+                  {product.details.closure && (
+                    <div>
+                      <dt className="text-sm text-gray-500 mb-1">Fechamento</dt>
+                      <dd className="text-gray-900">{product.details.closure}</dd>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
-          
-          {/* Informações extras */}
-          <div className="flex flex-col divide-y border-t border-b border-gray-200">
-            <button
-              onClick={() => toggleSection('shipping')}
-              className="flex items-center justify-between py-4"
-            >
-              <div className="flex items-center gap-3">
-                <Truck className="w-5 h-5 text-gray-600" />
-                <span className="font-medium">Opções de entrega</span>
-              </div>
-              {openSection === 'shipping' ? (
-                <ChevronUp className="w-5 h-5 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-gray-600" />
-              )}
-            </button>
             
-            {openSection === 'shipping' && (
-              <div className="py-4 px-4 text-gray-700 text-sm">
-                <p className="mb-2">
-                  <span className="font-medium">Frete grátis:</span> Para compras acima de R$250,00
-                </p>
-                <p className="mb-2">
-                  <span className="font-medium">Prazo de entrega:</span> 3-7 dias úteis, dependendo da região
-                </p>
-                <p>
-                  <span className="font-medium">Embalagem segura:</span> Seus vinhos são enviados em embalagens 
-                  especiais para garantir que cheguem perfeitos à sua casa.
-                </p>
-              </div>
-            )}
-            
-            <button
-              onClick={() => toggleSection('payment')}
-              className="flex items-center justify-between py-4"
-            >
-              <div className="flex items-center gap-3">
-                <CreditCard className="w-5 h-5 text-gray-600" />
-                <span className="font-medium">Formas de pagamento</span>
-              </div>
-              {openSection === 'payment' ? (
-                <ChevronUp className="w-5 h-5 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-gray-600" />
-              )}
-            </button>
-            
-            {openSection === 'payment' && (
-              <div className="py-4 px-4 text-gray-700 text-sm">
-                <p className="mb-2">
-                  <span className="font-medium">Cartão de crédito:</span> Até 6x sem juros
-                </p>
-                <p className="mb-2">
-                  <span className="font-medium">Boleto bancário:</span> 5% de desconto
-                </p>
-                <p className="mb-2">
-                  <span className="font-medium">Pix:</span> 10% de desconto
-                </p>
-              </div>
-            )}
-            
-            <button
-              onClick={() => toggleSection('guarantee')}
-              className="flex items-center justify-between py-4"
-            >
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-5 h-5 text-gray-600" />
-                <span className="font-medium">Garantia de qualidade</span>
-              </div>
-              {openSection === 'guarantee' ? (
-                <ChevronUp className="w-5 h-5 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-gray-600" />
-              )}
-            </button>
-            
-            {openSection === 'guarantee' && (
-              <div className="py-4 px-4 text-gray-700 text-sm">
-                <p className="mb-2">
-                  Se você não ficar satisfeito com a qualidade do vinho, oferecemos garantia de 
-                  devolução em até 7 dias após o recebimento.
-                </p>
-                <p>
-                  Todos os nossos vinhos são armazenados em condições ideais de temperatura e 
-                  umidade para garantir a melhor experiência.
-                </p>
-              </div>
-            )}
-          </div>
-          
-          {/* Compartilhar */}
-          <div className="mt-8">
-            <p className="text-gray-700 font-medium mb-3">Compartilhar:</p>
-            <div className="flex gap-3">
-              <button className="text-gray-600 hover:text-primary">
-                <Facebook className="w-5 h-5" />
+            {/* Avaliações */}
+            <div className="border-t border-gray-200">
+              <button
+                onClick={() => toggleSection('reviews')}
+                className="flex items-center justify-between w-full py-4"
+              >
+                <span className="font-medium">Avaliações dos clientes</span>
+                {openSection === 'reviews' ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
+                  <ChevronDown className="w-5 h-5" />
+                )}
               </button>
-              <button className="text-gray-600 hover:text-primary">
-                <Twitter className="w-5 h-5" />
-              </button>
-              <button className="text-gray-600 hover:text-primary">
-                <Share2 className="w-5 h-5" />
-              </button>
+              {openSection === 'reviews' && (
+                <div className="pb-4 space-y-6">
+                  {product.reviews.map((review) => (
+                    <div key={review.id} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="font-medium">{review.author}</p>
+                          <p className="text-sm text-gray-500">{review.date}</p>
+                        </div>
+                        <StarRating rating={review.rating} />
+                      </div>
+                      <p className="text-gray-600">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
       
-      {/* Detalhes do produto */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Detalhes do produto</h2>
-        
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="border-b border-gray-200">
-            <div className="flex overflow-x-auto">
-              <button
-                onClick={() => toggleSection('description')}
-                className={`px-6 py-3 text-sm font-medium whitespace-nowrap ${
-                  openSection === 'description'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Descrição
-              </button>
-              <button
-                onClick={() => toggleSection('characteristics')}
-                className={`px-6 py-3 text-sm font-medium whitespace-nowrap ${
-                  openSection === 'characteristics'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Características
-              </button>
-              <button
-                onClick={() => toggleSection('reviews')}
-                className={`px-6 py-3 text-sm font-medium whitespace-nowrap ${
-                  openSection === 'reviews'
-                    ? 'text-primary border-b-2 border-primary'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Avaliações ({product.reviews.length})
-              </button>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            {openSection === 'description' && (
-              <div>
-                <p className="text-gray-700 mb-4">
-                  {product.description}
-                </p>
-                <p className="text-gray-700">
-                  Este {product.name} da {product.details.winery} é produzido na região de {product.details.region}, {product.details.country}. 
-                  Com {product.details.alcohol} de teor alcoólico, é um vinho que expressa toda a tipicidade da 
-                  uva {product.details.grapes?.join(', ')} cultivada em um dos melhores terroirs do mundo.
-                </p>
-              </div>
-            )}
-            
-            {openSection === 'characteristics' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                {Object.entries(product.details).map(([key, value]) => {
-                  // Pular se não houver valor
-                  if (!value) return null;
-                  
-                  // Formatar o nome da característica
-                  let formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
-                  formattedKey = formattedKey.replace(/([A-Z])/g, ' $1').trim();
-                  
-                  return (
-                    <div key={key}>
-                      <span className="font-medium text-gray-700">{formattedKey}:</span>{' '}
-                      <span className="text-gray-600">
-                        {Array.isArray(value) ? value.join(', ') : value}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            
-            {openSection === 'reviews' && (
-              <div>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-gray-900">{product.rating.toFixed(1)}</div>
-                    <div className="flex justify-center my-1">
-                      <StarRating rating={product.rating} />
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {product.reviews.length} avaliações
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <Button variant="outline" className="w-full">
-                      Escreva uma avaliação
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-6">
-                  {product.reviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium">{review.author}</div>
-                        <div className="text-sm text-gray-500">{review.date}</div>
-                      </div>
-                      <div className="flex items-center mb-3">
-                        <StarRating rating={review.rating} />
-                      </div>
-                      <p className="text-gray-700">{review.comment}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-      
       {/* Produtos relacionados */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Você também pode gostar</h2>
-        
+      <section className="mt-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+          Produtos relacionados
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {product.relatedProducts.map((relatedProduct) => (
             <ProductCard 
@@ -640,4 +540,19 @@ export default function ProductPage({ params }: ProductProps) {
       </section>
     </main>
   );
+}
+
+// Página principal que lida com a busca do produto
+export default function ProductPage({ params }: ProductProps) {
+  const { slug } = params;
+  
+  // Encontrar o produto atual pelo slug
+  const product = products.find(p => p.slug === slug);
+  
+  // Se o produto não for encontrado, retornar 404
+  if (!product) {
+    notFound();
+  }
+
+  return <ProductContent product={product} />;
 } 
