@@ -108,11 +108,16 @@ const products = [
   }
 ];
 
+// Tipos para os parâmetros da página
+type Params = {
+  slug: string;
+}
+
 // Gera os metadados da página
-export function generateMetadata({ 
-  params 
-}: { 
-  params: { slug: string } 
+export function generateMetadata({
+  params
+}: {
+  params: Params
 }): Metadata {
   const product = products.find(p => p.slug === params.slug);
   
@@ -130,10 +135,10 @@ export function generateMetadata({
 }
 
 // Página principal que lida com a busca do produto
-export default function ProductPage({ 
-  params 
-}: { 
-  params: { slug: string } 
+export default function ProductPage({
+  params
+}: {
+  params: Params
 }) {
   const { slug } = params;
   

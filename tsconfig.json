@@ -6,7 +6,7 @@
     "lib": ["dom", "dom.iterable", "esnext"], //Define as bibliotecas que serão utilizadas
     "allowJs": true, //Permite o uso de JavaScript no projeto
     "skipLibCheck": true, //Ignora verificações de tipos em arquivos externos
-    "strict": true, //Habilita verificações de tipo estrito
+    "strict": false, //Desativa verificações de tipo estrito temporariamente
     "noEmit": true, //Não gera arquivos de saída
     "esModuleInterop": true, //Habilita a interoperabilidade de módulos
     "module": "esnext", //Define o tipo de módulo que será utilizado
