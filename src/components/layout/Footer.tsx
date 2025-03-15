@@ -1,5 +1,13 @@
-import Link from 'next/link'
+/**
+ * Rodapé da aplicação
+ * 
+ * Este componente define o rodapé da aplicação, que inclui:
+ * - Informações da empresa
+ * - Links úteis
+ * - Contato  
+ */
 
+import Link from 'next/link' // Importa o componente Link do Next.js
 export default function Footer() {
   return (
     <footer className="bg-primary-dark text-white py-8">
@@ -41,7 +49,7 @@ export default function Footer() {
             <address className="not-italic text-sm">
               <p>Email: contato@vinheriaagnello.com</p>
               <p>Tel: (11) 99999-9999</p>
-              <p>São Paulo - SP</p>
+              <p>Rua dos Vinhedos, 521 - Vila Madalena, São Paulo - SP</p>
             </address>
           </div>
         </div>

@@ -1,3 +1,11 @@
+/**
+ * Layout principal da aplicação
+ * 
+ * Este layout define a estrutura básica de cada página da aplicação,
+ * incluindo o cabeçalho, o rodapé e o conteúdo da página.
+ * 
+ */
+
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
