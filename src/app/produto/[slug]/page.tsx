@@ -20,7 +20,7 @@ import { ProductContent } from './ProductContent'
 import { notFound } from 'next/navigation'
 
 // Interfaces para tipagem dos dados
-type PageProps = {
+interface ProductPageProps {
   params: {
     slug: string
   }
@@ -117,7 +117,7 @@ const products = [
 ];
 
 // Gera os metadados da página
-export function generateMetadata({ params }: PageProps): Metadata {
+export function generateMetadata({ params }: ProductPageProps): Metadata {
   const product = products.find(p => p.slug === params.slug);
   
   if (!product) {
@@ -134,7 +134,7 @@ export function generateMetadata({ params }: PageProps): Metadata {
 }
 
 // Página principal que lida com a busca do produto
-export default function ProductPage({ params }: PageProps) {
+export default function ProductPage({ params }: ProductPageProps) {
   const { slug } = params;
   
   // Encontrar o produto atual pelo slug
