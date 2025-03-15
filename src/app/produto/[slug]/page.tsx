@@ -20,10 +20,11 @@ import { ProductContent } from './ProductContent'
 import { notFound } from 'next/navigation'
 
 // Interfaces para tipagem dos dados
-interface PageProps {
+type PageProps = {
   params: {
     slug: string
   }
+  searchParams: Record<string, string | string[] | undefined>
 }
 
 // Banco de dados mockado de produtos
