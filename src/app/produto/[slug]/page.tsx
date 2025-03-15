@@ -19,14 +19,6 @@ import { Metadata } from 'next'
 import { ProductContent } from './ProductContent'
 import { notFound } from 'next/navigation'
 
-// Interfaces para tipagem dos dados
-interface ProductPageProps {
-  params: {
-    slug: string
-  }
-  searchParams: Record<string, string | string[] | undefined>
-}
-
 // Banco de dados mockado de produtos
 const products = [
   {
@@ -117,7 +109,11 @@ const products = [
 ];
 
 // Gera os metadados da página
-export function generateMetadata({ params }: ProductPageProps): Metadata {
+export function generateMetadata({ 
+  params 
+}: { 
+  params: { slug: string } 
+}): Metadata {
   const product = products.find(p => p.slug === params.slug);
   
   if (!product) {
@@ -134,7 +130,11 @@ export function generateMetadata({ params }: ProductPageProps): Metadata {
 }
 
 // Página principal que lida com a busca do produto
-export default function ProductPage({ params }: ProductPageProps) {
+export default function ProductPage({ 
+  params 
+}: { 
+  params: { slug: string } 
+}) {
   const { slug } = params;
   
   // Encontrar o produto atual pelo slug
