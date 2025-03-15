@@ -44,7 +44,6 @@ interface ProductProps {
   params: {
     slug: string
   }
-  searchParams: { [key: string]: string | string[] | undefined }
 }
 
 interface Product {
@@ -543,7 +542,7 @@ function ProductContent({ product }: { product: Product }) {
 }
 
 // Página principal que lida com a busca do produto
-export default function ProductPage({ params }: ProductProps) {
+export default async function ProductPage({ params }: ProductProps) {
   const { slug } = params;
   
   // Encontrar o produto atual pelo slug
